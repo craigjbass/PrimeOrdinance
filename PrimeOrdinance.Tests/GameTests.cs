@@ -75,36 +75,6 @@ namespace PrimeOrdinance.Tests
             }
 
             [Test]
-            public void CanBuildATurretAndAFactory()
-            {
-                var id1 = _game.BuildUnit("turret", _seaBassId);
-                var id2 = _game.BuildUnit("factory");
-
-                _game.ViewUnits().Units.Should().BeEquivalentTo(
-                    new
-                    {
-                        Id = id1.ToGuid(),
-                        Type = "turret",
-                        OwnedBy = _seaBassId.ToGuid()
-                    },
-                    new
-                    {
-                        Id = id2.ToGuid(),
-                        Type = "factory"
-                    }
-                );
-            }
-
-            [Test]
-            public void CanBuildAndDestroyATurret()
-            {
-                var id = _game.BuildUnit("turret");
-                _game.DestroyUnit(id);
-
-                _game.ViewUnits().Units.Should().BeEmpty();
-            }
-
-            [Test]
             public void CanBuildTurretFactoryTurretAndDestroyTheLastTurret()
             {
                 var id1 = _game.BuildUnit("turret", _touchedByDogId);
