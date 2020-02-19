@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package PrimeOrdinance.Protocols;
+
+service Lobby {
+    rpc ViewLobby (google.protobuf.Empty) returns (PresentableLobby) {}
+}
+
+message PresentableLobby {
+    repeated string playerNames = 1;
+}
