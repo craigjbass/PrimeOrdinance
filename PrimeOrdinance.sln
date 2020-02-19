@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeOrdinance.Tests", "PrimeOrdinance.Tests\PrimeOrdinance.Tests.csproj", "{C3E6BADB-723F-4CCF-A9D0-17D03FEEFAC2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeOrdinance", "PrimeOrdinance\PrimeOrdinance.csproj", "{011025F7-610D-4EC3-9EC4-2544ABE43E13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{C3E6BADB-723F-4CCF-A9D0-17D03FEEFAC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3E6BADB-723F-4CCF-A9D0-17D03FEEFAC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3E6BADB-723F-4CCF-A9D0-17D03FEEFAC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{011025F7-610D-4EC3-9EC4-2544ABE43E13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{011025F7-610D-4EC3-9EC4-2544ABE43E13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{011025F7-610D-4EC3-9EC4-2544ABE43E13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{011025F7-610D-4EC3-9EC4-2544ABE43E13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
