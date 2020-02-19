@@ -48,7 +48,7 @@ namespace PrimeOrdinance
                 _game.ViewUnits().Units.Should().BeEmpty();
             }
         }
-        
+
         public class GivenTwoPlayers : GameTests
         {
             [SetUp]
@@ -65,22 +65,35 @@ namespace PrimeOrdinance
                 var units = _game.ViewUnits();
                 units.Units.Should().ContainSingle("factory");
             }
-            
-            [Test]
-            public void CanBuildATurret()
-            {
-                _game.BuildUnit("turret");
-                var units = _game.ViewUnits();
-                units.Units.Should().ContainSingle("turret");
-            }
-            
+
             [Test]
             public void CanBuildATurretAndAFactory()
             {
                 _game.BuildUnit("turret");
                 _game.BuildUnit("factory");
                 var units = _game.ViewUnits();
-                units.Units.Should().ContainInOrder("turret", "factory");
+                units.Units.Should().Equal("turret", "factory");
+            }
+
+            [Test]
+            public void CanBuildAndDestroyATurret()
+            {
+                var id = _game.BuildUnit("turret");
+                _game.DestroyUnit(id);
+                var units = _game.ViewUnits();
+                units.Units.Should().BeEmpty();
+            }
+
+            [Test]
+            public void CanBuildTurretFactoryTurretAndDestroyTheLastTurret()
+            {
+                _game.BuildUnit("turret");
+                _game.BuildUnit("factory");
+                var id = _game.BuildUnit("turret");
+                _game.DestroyUnit(id);
+                var units = _game.ViewUnits();
+                
+                units.Units.Should().Equal("turret", "factory");
             }
         }
     }
