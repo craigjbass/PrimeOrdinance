@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -16,14 +17,20 @@ namespace PrimeOrdinance
         public class GivenNothingHasHappened : GameTests
         {
             [Test]
-            public void LobbyCanBeEmpty()
+            public void ThereAreNoUnits()
+            {
+                _game.ViewUnits().Units.Should().BeEmpty();
+            }
+
+            [Test]
+            public void ThereAreNoPlayers()
             {
                 var presentableLobby = _game.ShowLobby();
                 presentableLobby.Players.Should().BeEmpty();
             }
 
             [Test]
-            public void LobbyCanHaveAPlayer()
+            public void APlayerCanJoin()
             {
                 _game.AddPlayer("SeaBass");
                 var lobby = _game.ShowLobby();
@@ -31,7 +38,7 @@ namespace PrimeOrdinance
             }
 
             [Test]
-            public void LobbyCanHaveTwoPlayers()
+            public void TwoPlayersCanJoin()
             {
                 _game.AddPlayer("SeaBass");
                 _game.AddPlayer("Esoterox");
@@ -41,38 +48,51 @@ namespace PrimeOrdinance
                     "SeaBass", "Esoterox"
                 );
             }
-
-            [Test]
-            public void ThereAreNoUnits()
-            {
-                _game.ViewUnits().Units.Should().BeEmpty();
-            }
         }
 
         public class GivenTwoPlayers : GameTests
         {
+            private string _seaBassId;
+            private string _touchedByDogId;
+
             [SetUp]
-            public void SetUpTwoPlayers()
+            public void TwoPlayersJoin()
             {
-                _game.AddPlayer("SeaBass");
-                _game.AddPlayer("touchedbydog");
+                _seaBassId = _game.AddPlayer("SeaBass");
+                _touchedByDogId = _game.AddPlayer("touchedbydog");
             }
 
             [Test]
-            public void CanBuildAFactory()
+            public void CanBuildAFactoryOwnedByNobody()
             {
-                _game.BuildUnit("factory");
-                var units = _game.ViewUnits();
-                units.Units.Should().ContainSingle("factory");
+                var id = _game.BuildUnit("factory");
+                _game.ViewUnits().Units.Should().BeEquivalentTo(new
+                {
+                    Id = id.ToGuid(),
+                    Type = "factory",
+                    OwnedBy = (Guid?) null
+                });
             }
 
             [Test]
             public void CanBuildATurretAndAFactory()
             {
-                _game.BuildUnit("turret");
-                _game.BuildUnit("factory");
-                var units = _game.ViewUnits();
-                units.Units.Should().Equal("turret", "factory");
+                var id1 = _game.BuildUnit("turret", _seaBassId);
+                var id2 = _game.BuildUnit("factory");
+
+                _game.ViewUnits().Units.Should().BeEquivalentTo(
+                    new
+                    {
+                        Id = id1.ToGuid(),
+                        Type = "turret",
+                        OwnedBy = _seaBassId.ToGuid()
+                    },
+                    new
+                    {
+                        Id = id2.ToGuid(),
+                        Type = "factory"
+                    }
+                );
             }
 
             [Test]
@@ -80,20 +100,31 @@ namespace PrimeOrdinance
             {
                 var id = _game.BuildUnit("turret");
                 _game.DestroyUnit(id);
-                var units = _game.ViewUnits();
-                units.Units.Should().BeEmpty();
+
+                _game.ViewUnits().Units.Should().BeEmpty();
             }
 
             [Test]
             public void CanBuildTurretFactoryTurretAndDestroyTheLastTurret()
             {
-                _game.BuildUnit("turret");
-                _game.BuildUnit("factory");
-                var id = _game.BuildUnit("turret");
-                _game.DestroyUnit(id);
-                var units = _game.ViewUnits();
-                
-                units.Units.Should().Equal("turret", "factory");
+                var id1 = _game.BuildUnit("turret", _touchedByDogId);
+                var id2 = _game.BuildUnit("factory", _seaBassId);
+                var id3 = _game.BuildUnit("turret");
+                _game.DestroyUnit(id3);
+
+                _game.ViewUnits().Units.Should().BeEquivalentTo(
+                    new
+                    {
+                        Id = id1.ToGuid(),
+                        Type = "turret",
+                        OwnedBy = _touchedByDogId.ToGuid()
+                    }, new
+                    {
+                        Id = id2.ToGuid(),
+                        Type = "factory",
+                        OwnedBy = _seaBassId.ToGuid()
+                    }
+                );
             }
         }
     }

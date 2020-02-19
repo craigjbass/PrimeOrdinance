@@ -9,7 +9,7 @@ namespace PrimeOrdinance
         private const string EventAddPlayer = "add-player";
         private const string EventBuildUnit = "build-unit";
         private const string EventDestroyUnit = "destroy-unit";
-        
+
         private Events _events;
 
         public Game()
@@ -17,6 +17,12 @@ namespace PrimeOrdinance
             _events = new Events();
         }
 
+        class BuildUnitEvent
+        {
+            public string Type;
+            public Guid? OwnerId;
+        }
+        
         public PresentableLobby ShowLobby()
         {
             return new PresentableLobby
@@ -28,25 +34,38 @@ namespace PrimeOrdinance
             };
         }
 
-        public void AddPlayer(string playerName)
+        public string AddPlayer(string playerName)
         {
-            _events.EmitGameEvent(EventAddPlayer, playerName);
+            return _events.EmitGameEvent(EventAddPlayer, playerName).ToString();
         }
 
         public string BuildUnit(string unitType)
         {
-            var id = _events.EmitGameEvent(EventBuildUnit, unitType);
+            var id = _events.EmitGameEvent(EventBuildUnit, new BuildUnitEvent()
+            {
+                Type = unitType
+            });
+            return id.ToString();
+        }
+
+        public string BuildUnit(string unitType, string ownerId)
+        {
+            var id = _events.EmitGameEvent(EventBuildUnit, new BuildUnitEvent()
+            {
+                Type = unitType,
+                OwnerId = ownerId.ToGuid()
+            });
             return id.ToString();
         }
 
         public void DestroyUnit(string id)
         {
-            _events.EmitGameEvent(EventDestroyUnit, Guid.Parse(id));
+            _events.EmitGameEvent(EventDestroyUnit, id.ToGuid());
         }
 
         public PresentableUnits ViewUnits()
         {
-            var units = new List<string>();
+            var units = new Stack<PresentableUnits.Unit>();
             var destroyed = new List<Guid>();
 
             foreach (var @event in _events.AllInReverse)
@@ -59,13 +78,21 @@ namespace PrimeOrdinance
 
                 if (destroyed.Contains(@event.Id))
                     continue;
-
-                if (@event.Type == EventBuildUnit) units.Add((string) @event.Data);
+                
+                if (@event.Is(EventBuildUnit) && @event.Data is BuildUnitEvent unitEvent)
+                    units.Push(
+                        new PresentableUnits.Unit
+                        {
+                            Id = @event.Id,
+                            Type = unitEvent.Type,
+                            OwnedBy = unitEvent.OwnerId
+                        }
+                    );
             }
 
-            return new PresentableUnits()
+            return new PresentableUnits
             {
-                Units = units.AsReadOnly().Reverse().ToArray()
+                Units = units.ToArray()
             };
         }
 
@@ -76,7 +103,14 @@ namespace PrimeOrdinance
 
         public class PresentableUnits
         {
-            public string[] Units;
+            public Unit[] Units;
+
+            public class Unit
+            {
+                public Guid Id;
+                public string Type;
+                public Guid? OwnedBy;
+            }
         }
     }
 }

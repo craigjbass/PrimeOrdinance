@@ -12,6 +12,8 @@ namespace PrimeOrdinance
             public Guid Id;
             public string Type;
             public object Data;
+
+            public bool Is(string type) => Type == type;
         }
 
         public IEnumerable<Event> All => _events.AsReadOnly().AsEnumerable();
