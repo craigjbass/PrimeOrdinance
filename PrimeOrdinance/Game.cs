@@ -6,7 +6,6 @@ namespace PrimeOrdinance
 {
     public class Game
     {
-        private readonly List<string> _players = new List<string>();
         private readonly List<Event> _events = new List<Event>();
 
         public class PresentableLobby
@@ -26,28 +25,44 @@ namespace PrimeOrdinance
             public object Data;
         }
 
-        public PresentableLobby ShowLobby() =>
-            new PresentableLobby
-            {
-                Players = _players.ToArray()
-            };
-
-        public void AddPlayer(string playerName) => _players.Add(playerName);
-
-        public string BuildUnit(string unitType)
+        private Guid EmitGameEvent(string eventType, object data)
         {
             var id = Guid.NewGuid();
-            
             var @event = new Event
             {
                 Id = id,
-                Type = "build-unit",
-                Data = unitType
+                Type = eventType,
+                Data = data
             };
-            
             _events.Add(@event);
+            return id;
+        }
 
+        public PresentableLobby ShowLobby()
+        {
+            return new PresentableLobby
+            {
+                Players = _events
+                    .Where(e => e.Type == "add-player")
+                    .Select(e => (string) e.Data)
+                    .ToArray()
+            };
+        }
+
+        public void AddPlayer(string playerName)
+        {
+            EmitGameEvent("add-player", playerName);
+        }
+
+        public string BuildUnit(string unitType)
+        {
+            var id = EmitGameEvent("build-unit", unitType);
             return id.ToString();
+        }
+
+        public void DestroyUnit(string id)
+        {
+            EmitGameEvent("destroy-unit", Guid.Parse(id));
         }
 
         public PresentableUnits ViewUnits()
@@ -64,27 +79,15 @@ namespace PrimeOrdinance
                 }
 
                 if (destroyed.Contains(@event.Id))
-                {
                     continue;
-                }
-                
-                units.Add((string) @event.Data);
+
+                if (@event.Type == "build-unit") units.Add((string) @event.Data);
             }
             
             return new PresentableUnits()
             {
                 Units = units.AsReadOnly().Reverse().ToArray()
             };
-        }
-
-        public void DestroyUnit(string unitType)
-        {
-            _events.Add(new Event()
-            {
-                Id = Guid.NewGuid(),
-                Type = "destroy-unit",
-                Data = Guid.Parse(unitType)
-            });
         }
     }
 
