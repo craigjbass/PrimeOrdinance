@@ -205,6 +205,38 @@ namespace PrimeOrdinance.Tests
                 _game.ViewEconomy(playerId).MatterRate.Should().Be(10);
                 _game.ViewEconomy(playerId).Matter.Should().Be(10);
             }
+            
+            [Test]
+            public void CanShowCorrectMatterRateWhenDestroyed()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _currentGameTime = 1000;
+
+                var unitId = _game.BuildUnit("matter-originator", playerId);
+                
+                _currentGameTime = 2000;
+                
+                _game.DestroyUnit(unitId);
+                
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(0);
+                _game.ViewEconomy(playerId).Matter.Should().Be(10);
+            }
+            
+            [Test]
+            public void CanStopOriginatingMatterWhenDestroyed()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _currentGameTime = 1000;
+
+                var unitId = _game.BuildUnit("matter-originator", playerId);
+                
+                _currentGameTime = 2000;
+                _game.DestroyUnit(unitId);
+                
+                _currentGameTime = 3000;
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(0);
+                _game.ViewEconomy(playerId).Matter.Should().Be(10);
+            }
         }
     }
 }
