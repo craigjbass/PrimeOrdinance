@@ -1,33 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PrimeOrdinance.Boundary;
+using PrimeOrdinance.Event;
+using PrimeOrdinance.UseCase;
 
 namespace PrimeOrdinance
 {
     public class Game
     {
-        private const string EventAddPlayer = "add-player";
-        private const string EventBuildUnit = "build-unit";
-        private const string EventDestroyUnit = "destroy-unit";
+        public const string EventAddPlayer = "add-player";
+        public const string EventBuildUnit = "build-unit";
+        public const string EventDestroyUnit = "destroy-unit";
 
         private Events _events;
         private TimeProvider _timeProvider;
 
-        public interface TimeProvider
-        {
-            long GetTime();
-        }
-        
         public Game(TimeProvider timeProvider)
         {
             _events = new Events(timeProvider);
             _timeProvider = timeProvider;
-        }
-
-        class BuildUnitEvent
-        {
-            public string Type;
-            public Guid? OwnerId;
         }
 
         public PresentableLobby ShowLobby()
@@ -48,7 +40,7 @@ namespace PrimeOrdinance
 
         public string BuildUnit(string unitType)
         {
-            var id = _events.EmitGameEvent(EventBuildUnit, new BuildUnitEvent()
+            var id = _events.EmitGameEvent(EventBuildUnit, new BuildUnit()
             {
                 Type = unitType
             });
@@ -57,7 +49,7 @@ namespace PrimeOrdinance
 
         public string BuildUnit(string unitType, string ownerId)
         {
-            var id = _events.EmitGameEvent(EventBuildUnit, new BuildUnitEvent()
+            var id = _events.EmitGameEvent(EventBuildUnit, new BuildUnit()
             {
                 Type = unitType,
                 OwnerId = ownerId.ToGuid()
@@ -86,7 +78,7 @@ namespace PrimeOrdinance
                 if (destroyed.Contains(@event.Id))
                     continue;
 
-                if (@event.Is(EventBuildUnit) && @event.Data is BuildUnitEvent unitEvent)
+                if (@event.Is(EventBuildUnit) && @event.Data is BuildUnit unitEvent)
                     units.Push(
                         new PresentableUnits.Unit
                         {
@@ -121,39 +113,10 @@ namespace PrimeOrdinance
                 public string State;
             }
         }
-
-        public class PresentableEconomy
-        {
-            public int MatterRate;
-            public long Matter;
-        }
-
+        
         public PresentableEconomy ViewEconomy(string playerId)
         {
-            var matterRate = 0;
-            long matter = 0;
-            
-            var destroyed = new Dictionary<Guid, long>();
-            
-            foreach (var @event in _events.AllInReverse)
-            {
-                if (@event.Is(EventDestroyUnit))
-                {
-                    destroyed.Add((Guid)@event.Data, @event.Time);
-                    matterRate -= 10;
-                }
-
-                if (!@event.Is(EventBuildUnit) || !(@event.Data is BuildUnitEvent unitEvent)) continue;
-                if (unitEvent.Type != "matter-originator") continue;
-                
-                matterRate += 10;
-                var endTime = destroyed.ContainsKey(@event.Id) ? destroyed[@event.Id] : _timeProvider.GetTime();
-                var startTime = @event.Time;
-                        
-                matter = (endTime - startTime) / 100;
-            }
-            
-            return new PresentableEconomy { MatterRate = matterRate, Matter = matter };
+            return new ViewEconomy(_events, _timeProvider).Execute(playerId);
         }
     }
 }

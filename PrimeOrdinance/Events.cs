@@ -6,10 +6,10 @@ namespace PrimeOrdinance
 {
     public class Events
     {
-        private readonly Game.TimeProvider _timeProvider;
+        private readonly TimeProvider _timeProvider;
         private readonly List<Event> _events = new List<Event>();
 
-        public Events(Game.TimeProvider timeProvider)
+        public Events(TimeProvider timeProvider)
         {
             _timeProvider = timeProvider;
         }

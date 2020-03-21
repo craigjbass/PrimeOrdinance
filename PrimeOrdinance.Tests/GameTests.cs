@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace PrimeOrdinance.Tests
 {
-    public class GameTests : Game.TimeProvider
+    public class GameTests : TimeProvider
     {
         private Game _game;
         private long _currentGameTime;
