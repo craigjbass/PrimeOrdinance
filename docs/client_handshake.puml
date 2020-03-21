@@ -1,0 +1,12 @@
+@startuml
+autonumber
+AdminClient -> Server: Lobby.SetGameInformation(gameName)
+Server --> AdminClient: ()
+
+Client -> Server: Lobby.ViewInfo()
+Server --> Client: (gameName) 
+
+Client -> Server: Lobby.JoinGame(playerName)
+Server --> Client: (playerId)
+
+@enduml

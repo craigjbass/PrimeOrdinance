@@ -5,7 +5,7 @@ import "google/protobuf/empty.proto";
 package PrimeOrdinance.Protocols;
 
 service Lobby {
-    rpc ViewLobby (google.protobuf.Empty) returns (PresentableLobby) {}
+    rpc ViewLobby (google.protobuf.Empty) returns (PresentableLobby);
 }
 
 message PresentableLobby {

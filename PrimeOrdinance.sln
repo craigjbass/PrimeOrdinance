@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeOrdinance.Tests", "Pri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeOrdinance", "PrimeOrdinance\PrimeOrdinance.csproj", "{011025F7-610D-4EC3-9EC4-2544ABE43E13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeOrdinance.ConsoleClient", "PrimeOrdinance.ConsoleClient\PrimeOrdinance.ConsoleClient.csproj", "{10D70006-39AE-4EB3-AABE-E31439AF5C7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeOrdinance.Client", "PrimeOrdinance.Client\PrimeOrdinance.Client.csproj", "{10D70006-39AE-4EB3-AABE-E31439AF5C7C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeOrdinance.Server", "PrimeOrdinance.Server\PrimeOrdinance.Server.csproj", "{9B775C23-6A51-4CB9-A0D3-DE9F7A9FD5BD}"
 EndProject
