@@ -4,14 +4,21 @@ using NUnit.Framework;
 
 namespace PrimeOrdinance.Tests
 {
-    public class GameTests
+    public class GameTests : Game.TimeProvider
     {
         private Game _game;
+        private long _currentGameTime;
 
         [SetUp]
         public void BuildTheGame()
         {
-            _game = new Game();
+            _currentGameTime = 0;
+            _game = new Game(this);
+        }
+        
+        public long GetTime()
+        {
+            return _currentGameTime;
         }
 
         public class GivenNothingHasHappened : GameTests
@@ -95,6 +102,110 @@ namespace PrimeOrdinance.Tests
                         OwnedBy = _seaBassId.ToGuid()
                     }
                 );
+            }
+        }
+
+        public class DescribeBuildingUnits : GameTests
+        {
+            [Test]
+            public void UnitsStartInTheConstructingState()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+
+                _game.BuildUnit("factory", playerId);
+
+                _game.ViewUnits().Units[0].State.Should().Be("Constructing");
+            }
+        }
+
+        public class DescribeTheEconomy : GameTests
+        {
+            [Test]
+            public void TheEconomyStartsAt0Matter()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(0);
+                _game.ViewEconomy(playerId).Matter.Should().Be(0);
+            }
+            
+            [Test]
+            public void AfterBuildingAMatterOriginatorTheMatterRateIs10()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _game.BuildUnit("matter-originator", playerId);
+                
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(10);
+                _game.ViewEconomy(playerId).Matter.Should().Be(0);
+            }
+            
+            [Test]
+            public void AfterBuildingAMatterOriginatorAndAfterOneSecondTheMatterIs10()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _game.BuildUnit("matter-originator", playerId);
+
+                _currentGameTime = 1000;
+                
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(10);
+                _game.ViewEconomy(playerId).Matter.Should().Be(10);
+            }
+            
+            [Test]
+            public void AfterBuildingAMatterOriginatorAndAfterTwoSecondsTheMatterIs20()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _game.BuildUnit("matter-originator", playerId);
+
+                _currentGameTime = 2000;
+                
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(10);
+                _game.ViewEconomy(playerId).Matter.Should().Be(20);
+            }
+            
+            [Test]
+            public void CanBuildAMatterOriginator1SecondIntoGamePlay()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _currentGameTime = 1000;
+
+                _game.BuildUnit("matter-originator", playerId);
+
+                _currentGameTime = 2000;
+                
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(10);
+                _game.ViewEconomy(playerId).Matter.Should().Be(10);
+            }
+            
+            [Test]
+            public void CanShowCorrectMatterRateWhenDestroyed()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _currentGameTime = 1000;
+
+                var unitId = _game.BuildUnit("matter-originator", playerId);
+                
+                _currentGameTime = 2000;
+                
+                _game.DestroyUnit(unitId);
+                
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(0);
+                _game.ViewEconomy(playerId).Matter.Should().Be(10);
+            }
+            
+            [Test]
+            public void CanStopOriginatingMatterWhenDestroyed()
+            {
+                var playerId = _game.AddPlayer("SeaBass");
+                _currentGameTime = 1000;
+
+                var unitId = _game.BuildUnit("matter-originator", playerId);
+                
+                _currentGameTime = 2000;
+                _game.DestroyUnit(unitId);
+                
+                _currentGameTime = 3000;
+                _game.ViewEconomy(playerId).MatterRate.Should().Be(0);
+                _game.ViewEconomy(playerId).Matter.Should().Be(10);
             }
         }
     }

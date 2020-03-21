@@ -6,12 +6,20 @@ namespace PrimeOrdinance
 {
     public class Events
     {
+        private readonly Game.TimeProvider _timeProvider;
         private readonly List<Event> _events = new List<Event>();
+
+        public Events(Game.TimeProvider timeProvider)
+        {
+            _timeProvider = timeProvider;
+        }
+
         public class Event
         {
             public Guid Id;
             public string Type;
             public object Data;
+            public long Time;
 
             public bool Is(string type) => Type == type;
         }
@@ -27,7 +35,8 @@ namespace PrimeOrdinance
             {
                 Id = id,
                 Type = eventType,
-                Data = data
+                Data = data,
+                Time = _timeProvider.GetTime()
             };
             _events.Add(@event);
             return id;

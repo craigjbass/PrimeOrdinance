@@ -11,10 +11,17 @@ namespace PrimeOrdinance
         private const string EventDestroyUnit = "destroy-unit";
 
         private Events _events;
+        private TimeProvider _timeProvider;
 
-        public Game()
+        public interface TimeProvider
         {
-            _events = new Events();
+            long GetTime();
+        }
+        
+        public Game(TimeProvider timeProvider)
+        {
+            _events = new Events(timeProvider);
+            _timeProvider = timeProvider;
         }
 
         class BuildUnitEvent
@@ -22,7 +29,7 @@ namespace PrimeOrdinance
             public string Type;
             public Guid? OwnerId;
         }
-        
+
         public PresentableLobby ShowLobby()
         {
             return new PresentableLobby
@@ -78,14 +85,15 @@ namespace PrimeOrdinance
 
                 if (destroyed.Contains(@event.Id))
                     continue;
-                
+
                 if (@event.Is(EventBuildUnit) && @event.Data is BuildUnitEvent unitEvent)
                     units.Push(
                         new PresentableUnits.Unit
                         {
                             Id = @event.Id,
                             Type = unitEvent.Type,
-                            OwnedBy = unitEvent.OwnerId
+                            OwnedBy = unitEvent.OwnerId,
+                            State = "Constructing"
                         }
                     );
             }
@@ -110,7 +118,42 @@ namespace PrimeOrdinance
                 public Guid Id;
                 public string Type;
                 public Guid? OwnedBy;
+                public string State;
             }
+        }
+
+        public class PresentableEconomy
+        {
+            public int MatterRate;
+            public long Matter;
+        }
+
+        public PresentableEconomy ViewEconomy(string playerId)
+        {
+            var matterRate = 0;
+            long matter = 0;
+            
+            var destroyed = new Dictionary<Guid, long>();
+            
+            foreach (var @event in _events.AllInReverse)
+            {
+                if (@event.Is(EventDestroyUnit))
+                {
+                    destroyed.Add((Guid)@event.Data, @event.Time);
+                    matterRate -= 10;
+                }
+
+                if (!@event.Is(EventBuildUnit) || !(@event.Data is BuildUnitEvent unitEvent)) continue;
+                if (unitEvent.Type != "matter-originator") continue;
+                
+                matterRate += 10;
+                var endTime = destroyed.ContainsKey(@event.Id) ? destroyed[@event.Id] : _timeProvider.GetTime();
+                var startTime = @event.Time;
+                        
+                matter = (endTime - startTime) / 100;
+            }
+            
+            return new PresentableEconomy { MatterRate = matterRate, Matter = matter };
         }
     }
 }
