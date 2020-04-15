@@ -17,6 +17,14 @@ function App() {
                 <animate attributeName="stroke-width" values="2;6;2" dur="1s" repeatCount="indefinite" />
           </circle>
         </g>
+
+        <g>
+          <circle className="path-point" cx="300" cy="300" r="5" />
+          <circle className="path-point" cx="400" cy="300" r="5" />
+          <path className="path" d="M400 200 L300 300 L400 300" />
+        </g>
+
+        
     </svg>
   );
 }

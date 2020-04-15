@@ -24,3 +24,17 @@
   fill: rgba(255,255,255,0.1);
   stroke: #3bf50766;
 }
+
+.path {
+  fill: none;
+  stroke: #2099ba99;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.path-point {
+  fill: none;
+  stroke: #2099ba;
+  stroke-width: 3;
+
+}
